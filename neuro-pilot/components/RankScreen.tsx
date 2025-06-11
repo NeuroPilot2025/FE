@@ -69,38 +69,6 @@ const RankScreen: React.FC<RankScreenProps> = ({
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-[#0c1445] to-[#1f2a68] text-white relative">
-            <img
-                src={RACCOON_IMG_DATA_NORMAL}
-                alt="Raccoon"
-                className="absolute top-8 left-8 w-20 h-20 opacity-50 pixelated transform -rotate-12"
-            />
-            <img
-                src={RACCOON_IMG_DATA_ANGRY}
-                alt="Angry Raccoon"
-                className="absolute top-8 right-8 w-20 h-20 opacity-50 pixelated transform rotate-12"
-            />
-
-            <div className="text-center mb-6 game-font">
-                <h1
-                    className="text-6xl font-bold text-yellow-400"
-                    style={{ textShadow: "3px 3px 0px #8B4513" }}
-                >
-                    {gameOutcomeMessage === "YOU WON!"
-                        ? "VICTORY!"
-                        : gameOutcomeMessage === "TIME LIMIT REACHED!"
-                        ? "GAME OVER"
-                        : "RESULTS"}
-                </h1>
-                {gameOutcomeMessage && (
-                    <p className="text-xl text-gray-300 mt-2">
-                        {gameOutcomeMessage.toUpperCase()}
-                    </p>
-                )}
-                <p className="text-2xl text-orange-400 mt-1">
-                    Your Time: {currentScore.toFixed(2)}s
-                </p>
-            </div>
-
             <div className="bg-blue-900/70 p-6 rounded-xl shadow-2xl w-full max-w-md border-2 border-yellow-500/70">
                 <h2 className="text-4xl font-bold text-center mb-6 text-yellow-300 game-font">
                     RANKING (FASTEST TIMES)
