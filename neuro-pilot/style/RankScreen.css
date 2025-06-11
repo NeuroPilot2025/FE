@@ -1,7 +1,213 @@
-.container {
+.RankPageBackGround {
+    background-image: url("/img/Background_3.png");
+    background-size: cover;
     width: 100%;
-    height: 200px;
-    background-color: #f0f0f0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem; /* Tailwind의 p-4 = 1rem */
+    position: relative;
+}
+
+.RankBackground {
+    width: 100%;
+    height: 500px; /* 너무 작지 않게 설정 */
+    background-image: url("/img/RankBoard.png"); /* ✅ 꼭 url()로 감싸야 함 */
+    background-size: cover; /* ✅ 전체 채우기 */
+    background-repeat: no-repeat;
+    background-position: center;
     border-radius: 12px;
     text-align: center;
+}
+
+.RankInfoBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 111px;
+}
+.RankTop3box {
+    display: flex;
+    flex-direction: row;
+    position: relative; /* ⭐ 기준으로 1,2,3 겹침 */
+    height: 150px;
+}
+.RankTop1,
+.RankTop2,
+.RankTop3 {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.RankTop1 {
+    width: 130px;
+    height: 130px;
+    top: 7px;
+    left: 30%;
+    transform: translateX(-50%);
+    background-image: url("../img/RankStar1.png");
+    z-index: 2;
+}
+.RankTop3 {
+    width: 109px;
+    height: 109px;
+    top: 6px;
+    left: 30px;
+    background-image: url("../img/RankStar3.png");
+    z-index: 1;
+}
+.RankTop2 {
+    width: 109px;
+    height: 109px;
+    top: 6px;
+    right: 30px;
+    background-image: url("../img/RankStar2.png");
+    z-index: 1;
+}
+.ScoreList {
+    margin-top: 80px;
+}
+.TopRankScoreBox {
+    width: 100px;
+    height: 50px;
+    background-image: url("/img/List.png"); /* ✅ 절대 경로로 수정 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff; /* 텍스트 색 */
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 8px;
+}
+.TopRankScoreName {
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+    color: #592e06;
+}
+.TopRankScoreBoxoInner {
+    margin-top: 12px;
+    text-shadow: 1px 1px 0 #592e06;
+    color: #ff9500;
+}
+/*하위 ranklist*/
+.LowerScorelistBox {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.LowerScoreList {
+    display: flex;
+    justify-content: space-between;
+}
+
+.LowerScoreListScore {
+    background: none;
+    margin: 10px 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #5c3b00;
+    text-shadow: 1px 1px #fff;
+    width: 200px;
+}
+
+.LowerScoreListScore span:first-child {
+    flex: 1;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.LowerScoreListScore span:nth-child(2) {
+    flex: 1;
+    text-align: center;
+}
+
+.LowerScoreListScore .TimeBox {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("/img/List.png"); /* ✅ 초록 버튼 배경 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 62px;
+    height: 40px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 12px;
+    text-shadow: 1px 1px #000;
+    padding-top: 10px;
+}
+.Nickname {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+}
+.ButtonOverlay {
+    position: absolute;
+    bottom: 60px; /* 원하는 만큼 겹치게 조절 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.RankElse {
+    margin-top: 5px;
+    width: 100%;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+}
+.RankelseBoxColor {
+    background-image: url("/img/RankLowerBackground.png");
+}
+
+.RankelseBox {
+    max-height: 160px; /* 높이 제한 줘서 스크롤 가능하게 */
+    overflow-y: auto;
+}
+
+/* 스크롤바 꾸미기 (선택사항) */
+.RankelseBox::-webkit-scrollbar {
+    width: 6px;
+}
+.RankelseBox::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+}
+.RankelseBox::-webkit-scrollbar-track {
+    background: transparent;
+}
+.RankelseBoxColor {
+    background-image: url("/img/RankLowerBackground.png");
+    background-repeat: no-repeat;
+    background-size: 100% 100%; /* ✅ 비율 고정 */
+    background-position: center;
+    padding-left: 20px;
+    border-radius: 16px;
+    width: 230px;
+    height: 174px;
+    overflow: hidden; /* ✅ 스크롤 영역 제한 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 스크롤바 스타일(optional) */
+.RankelseBox::-webkit-scrollbar {
+    width: 4px;
 }
