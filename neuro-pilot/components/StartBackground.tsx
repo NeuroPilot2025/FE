@@ -59,43 +59,13 @@ const AnimatedBackground: React.FC = () => {
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden bg-gradient-to-b from-[#0c1445] to-[#1f2a68]"
-      style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}
-    >
-      {/* Stars */}
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className="absolute rounded-full bg-white animate-pulse"
-          style={{
-            left: star.x,
-            top: star.y,
-            width: star.size,
-            height: star.size,
-            opacity: star.opacity,
-            animationDelay: star.animationDelay,
-            animationDuration: star.animationDuration,
-          }}
-        />
-      ))}
-      {/* Galaxies */}
-      {galaxies.map((galaxy) => (
-        <div
-          key={galaxy.id}
-          className="absolute rounded-full"
-          style={{
-            left: galaxy.x,
-            top: galaxy.y,
-            width: galaxy.size,
-            height: galaxy.size,
-            backgroundColor: galaxy.color,
-            opacity: galaxy.opacity,
-            filter: "blur(15px)",
-            transform: "translate(-50%, -50%)", // Center the galaxy
-          }}
-        />
-      ))}
-    </div>
+      className="absolute inset-0 overflow-hidden bg-no-repeat bg-center bg-cover"
+      style={{
+        width: GAME_WIDTH,
+        height: GAME_HEIGHT,
+        backgroundImage: "url('./img/Background_1.png')",
+      }}
+    ></div>
   );
 };
 

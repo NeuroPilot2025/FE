@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AnimatedBackground from "./AnimatedBackground";
+import AnimatedBackground from "./StartBackground";
 import { SelectedBunny } from "../types";
 // Note: BUNNY_SVG_DATA constants are not used here anymore for display,
 // but they are kept in constants.ts for Player.tsx
