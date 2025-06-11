@@ -21,7 +21,7 @@ const Button: React.FC<ButtonProps> = ({
                 <img
                     src="/img/ReplayBtn.png"
                     alt="Replay"
-                    className="w-[160px] h-auto hover:opacity-90 transition"
+                    className="w-[160px] h-auto"
                 />
             </button>
         );
