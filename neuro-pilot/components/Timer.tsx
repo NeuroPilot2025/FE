@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface TimerProps {
@@ -17,9 +16,9 @@ const Timer: React.FC<TimerProps> = ({ elapsedTime }) => {
       <img 
         src="/img/Time.png" 
         alt="Time" 
-        className="mb-0.5 h-6 md:h-7 pixelated" // Adjusted margin and height
+        className="mb-0.5 h-11 md:h-13 pixelated" // Increased height for larger display
       />
-      <p className="text-yellow-400 text-2xl md:text-3xl font-bold game-font leading-none"> {/* Added md:text-3xl for responsiveness and leading-none */}
+      <p className="text-yellow-400 text-2xl md:text-3xl font-bold game-font leading-none">
         {formatTime(elapsedTime)}
       </p>
     </div>

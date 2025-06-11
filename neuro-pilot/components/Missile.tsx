@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   MISSILE_WIDTH, MISSILE_HEIGHT,
@@ -10,9 +9,17 @@ interface MissileProps {
   x: number;
   y: number;
   selectedBunny: SelectedBunny; // To determine which missile image to use
+  scaleFactor?: number;         // 크기 조정 비율 (기본값 1)
+  horizontalPadding?: number;   // 좌우 패딩(px)
 }
 
-const MissileComponent: React.FC<MissileProps> = ({ x, y, selectedBunny }) => {
+const MissileComponent: React.FC<MissileProps> = ({
+  x,
+  y,
+  selectedBunny,
+  scaleFactor = 3,
+  horizontalPadding = 23,
+}) => {
   let missileImageSrc;
   switch (selectedBunny) {
     case SelectedBunny.OPTION_B: // Warrior Bunny's missile
@@ -27,16 +34,20 @@ const MissileComponent: React.FC<MissileProps> = ({ x, y, selectedBunny }) => {
       break;
   }
 
+  // 크기 계산
+  const width = MISSILE_WIDTH * scaleFactor;
+  const height = MISSILE_HEIGHT * scaleFactor;
+
   return (
     <img
       src={missileImageSrc}
       alt="Missile"
       className="absolute pixelated"
       style={{
-        left: x,
+        left: x - horizontalPadding,  // 좌우 패딩 보정
         top: y,
-        width: MISSILE_WIDTH,
-        height: MISSILE_HEIGHT,
+        width,
+        height,
       }}
     />
   );

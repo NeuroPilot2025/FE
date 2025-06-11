@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_START_Y, 
@@ -9,9 +8,13 @@ import { SelectedBunny } from '../types';
 interface PlayerProps {
   playerX: number;
   selectedBunny: SelectedBunny;
+  horizontalPadding?: number; // 좌우 패딩(px)
 }
 
-const Player: React.FC<PlayerProps> = ({ playerX, selectedBunny }) => {
+const SCALE_FACTOR = 1.4; // 플레이어 크기 조정 비율
+const BOTTOM_PADDING = 60;     // 바닥과 약간의 간격을 위해 추가 상하 여백(px)
+
+const Player: React.FC<PlayerProps> = ({ playerX, selectedBunny, horizontalPadding = 25 }) => {
   let playerImageSrc;
   switch (selectedBunny) {
     case SelectedBunny.OPTION_B: // Warrior Bunny
@@ -26,25 +29,29 @@ const Player: React.FC<PlayerProps> = ({ playerX, selectedBunny }) => {
       break;
   }
 
+  // 스케일 적용 시 중앙 정렬 및 바닥 보정
+  const offsetX = (PLAYER_WIDTH * (SCALE_FACTOR - 1)) / 2;
+  const offsetY = PLAYER_HEIGHT * (SCALE_FACTOR - 1) + BOTTOM_PADDING;
+
   return (
     <div
-      className="absolute" 
+      className="absolute"
       style={{
-        left: playerX,
-        top: PLAYER_START_Y,
-        width: PLAYER_WIDTH,
-        height: PLAYER_HEIGHT,
+        left: playerX - offsetX - horizontalPadding,  // 중앙 정렬 보정 + 좌우 패딩
+        top: PLAYER_START_Y - offsetY,                // 바닥 간격 보정
+        width: PLAYER_WIDTH * SCALE_FACTOR,
+        height: PLAYER_HEIGHT * SCALE_FACTOR,
+        transform: `scale(${SCALE_FACTOR})`,  
+        transformOrigin: 'top left',
+        zIndex: 1,
       }}
       aria-label="Player Character"
     >
-      {/* Combined Player Image (Bunny in Rocket) */}
       <img 
         src={playerImageSrc} 
         alt="Player" 
         className="w-full h-full object-contain pixelated"
       />
-      
-      {/* Rocket Flames Removed */}
     </div>
   );
 };

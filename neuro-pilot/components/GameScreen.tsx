@@ -8,7 +8,7 @@ import {
 import Player from "./Player";
 import EnemyComponent from "./Enemy";
 import MissileComponent from "./Missile";
-import AnimatedBackground from "./AnimatedBackground";
+import backgroundImage from "../img/Background_2.png";
 import Timer from "./Timer";
 import {
     GAME_WIDTH,
@@ -54,12 +54,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ nickname, selectedBunny, onGame
     const gameLoopRef = useRef<number | null>(null);
     const lastFireTimeRef = useRef<number>(0);
     const lastTickTimeRef = useRef<number>(performance.now());
-    const enemyHitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const spawnEnemy = useCallback(() => {
-        setEnemies(prevEnemies => {
-            // only spawn when none alive
-            if (prevEnemies.some(e => !e.isDying) || gameOverStatus) return prevEnemies;
+        setEnemies(prev => {
+            if (prev.some(e => !e.isDying) || gameOverStatus) return prev;
             let newEnemyType: EnemyType;
             let newEnemyHealth: number;
             if (enemiesDefeatedRef.current.basic < TOTAL_BASIC_ENEMIES) {
@@ -69,12 +67,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ nickname, selectedBunny, onGame
                 newEnemyType = EnemyType.STRONG;
                 newEnemyHealth = ENEMY_STRONG_HEALTH;
             } else {
-                // all enemies defeated
                 if (!gameOverStatus) {
                     setGameOverStatus("YOU WON!");
                     onGameOver(elapsedTime, "YOU WON!");
                 }
-                return prevEnemies;
+                return prev;
             }
             const side = Math.random() < 0.5 ? "left" : "right";
             const x = side === "left" ? ENEMY_LEFT_X : ENEMY_RIGHT_X;
@@ -88,8 +85,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nickname, selectedBunny, onGame
                 isHit: false,
                 isDying: false,
             };
-            // keep existing to show death animation
-            return [...prevEnemies, newEnemy];
+            return [...prev, newEnemy];
         });
     }, [elapsedTime, gameOverStatus, onGameOver]);
 
@@ -111,7 +107,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ nickname, selectedBunny, onGame
         if (gameOverStatus || !canFire || enemies.filter(e => !e.isDying).length === 0) return;
         const now = Date.now();
         if (now - lastFireTimeRef.current > MISSILE_COOLDOWN_MS) {
-            setMissiles(prev => [...prev, { id: `missile-${Date.now()}`, x: playerX + PLAYER_WIDTH/2 - MISSILE_WIDTH/2, y: PLAYER_START_Y }]);
+            setMissiles(prev => [...prev, {
+                id: `missile-${Date.now()}`,
+                x: playerX + PLAYER_WIDTH/2 - MISSILE_WIDTH/2,
+                y: PLAYER_START_Y
+            }]);
             lastFireTimeRef.current = now;
             setCanFire(false);
             setTimeout(() => setCanFire(true), MISSILE_COOLDOWN_MS);
@@ -121,7 +121,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nickname, selectedBunny, onGame
     useEffect(() => {
         if (gameOverStatus) { cancelAnimationFrame(gameLoopRef.current!); return; }
         const tick = (t: number) => {
-            const dt = (t - lastTickTimeRef.current)/1000;
+            const dt = (t - lastTickTimeRef.current) / 1000;
             lastTickTimeRef.current = t;
             setElapsedTime(prev => {
                 const next = prev + dt;
@@ -132,62 +132,78 @@ const GameScreen: React.FC<GameScreenProps> = ({ nickname, selectedBunny, onGame
                 }
                 return next;
             });
-            setMissiles(prev => prev.map(m => ({ ...m, y: m.y - MISSILE_SPEED * dt * 60 })).filter(m => m.y > -MISSILE_HEIGHT));
+            setMissiles(prev => prev
+                .map(m => ({ ...m, y: m.y - MISSILE_SPEED * dt * 60 }))
+                .filter(m => m.y > -MISSILE_HEIGHT)
+            );
             setEnemies(prev => prev.map(e => {
                 if (e.isDying) return e;
-                let hp = e.health; let hit=false;
-                const rem = missiles.filter(m => {
-                    const col = m.x < e.x+ENEMY_WIDTH && m.x+MISSILE_WIDTH>e.x && m.y<e.y+ENEMY_HEIGHT && m.y+MISSILE_HEIGHT>e.y;
-                    if(col){ hp--; hit=true; return false;} return true;
+                let hp = e.health;
+                let hit = false;
+                const remaining = missiles.filter(m => {
+                    const collided = m.x < e.x + ENEMY_WIDTH && m.x + MISSILE_WIDTH > e.x && m.y < e.y + ENEMY_HEIGHT && m.y + MISSILE_HEIGHT > e.y;
+                    if (collided) { hp--; hit = true; return false; }
+                    return true;
                 });
-                if(hit){
-                    setMissiles(rem);
-                    const ue = {...e, health:hp, isHit:true};
-                    if(hp<=0){
-                        ue.isDying=true;
-                        if(ue.type===EnemyType.BASIC) enemiesDefeatedRef.current.basic++;
+                if (hit) {
+                    setMissiles(remaining);
+                    const updated = { ...e, health: hp, isHit: true };
+                    if (hp <= 0) {
+                        updated.isDying = true;
+                        if (updated.type === EnemyType.BASIC) enemiesDefeatedRef.current.basic++;
                         else enemiesDefeatedRef.current.strong++;
-                        const lastS=ue.type===EnemyType.STRONG && enemiesDefeatedRef.current.strong>=TOTAL_STRONG_ENEMIES;
-                        setTimeout(()=>{
-                            setEnemies(cur=>cur.filter(x=>x.id!==ue.id));
-                            if(lastS){setGameOverStatus("YOU WON!");onGameOver(elapsedTime,"YOU WON!");}else spawnEnemy();
+                        const lastStrong = updated.type === EnemyType.STRONG && enemiesDefeatedRef.current.strong >= TOTAL_STRONG_ENEMIES;
+                        setTimeout(() => {
+                            setEnemies(cur => cur.filter(x => x.id !== updated.id));
+                            if (lastStrong) { setGameOverStatus("YOU WON!"); onGameOver(elapsedTime, "YOU WON!"); }
+                            else spawnEnemy();
                         }, ENEMY_DEATH_DURATION_MS);
                     } else {
-                        setTimeout(()=>setEnemies(cur=>cur.map(x=>x.id===e.id?{...x,isHit:false}:x)),150);
+                        setTimeout(() => setEnemies(cur => cur.map(x => x.id === e.id ? { ...x, isHit: false } : x)), 150);
                     }
-                    return ue;
+                    return updated;
                 }
                 return e;
             }));
-            gameLoopRef.current=requestAnimationFrame(tick);
+            gameLoopRef.current = requestAnimationFrame(tick);
         };
-        gameLoopRef.current=requestAnimationFrame(tick);
-        return()=>cancelAnimationFrame(gameLoopRef.current!);
-    },[missiles,onGameOver,gameOverStatus,spawnEnemy]);
+        gameLoopRef.current = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(gameLoopRef.current!);
+    }, [missiles, onGameOver, gameOverStatus, spawnEnemy]);
 
-    // Game Over / Clear
-    if(gameOverStatus){
-        const src=gameOverStatus==='YOU WON!'?IMAGE_PATH_GAME_CLEAR:IMAGE_PATH_GAME_OVER_TIME_LIMIT;
-        const alt=gameOverStatus==='YOU WON!'?'Game Clear':'Game Over';
-        return(
-            <div className="w-full h-full flex flex-col items-center justify-center relative bg-[#0c1445]">
-                <AnimatedBackground />
-                <div className="z-10 p-8 bg-black/70 rounded-lg text-center">
-                    <img src={src} alt={alt} className="max-w-sm mb-6 pixelated" />
-                    <p className="text-3xl text-white mt-2">Final Time: {elapsedTime.toFixed(2)}s</p>
+    // Game Over / Clear Screen
+    if (gameOverStatus) {
+        const src = gameOverStatus === 'YOU WON!' ? IMAGE_PATH_GAME_CLEAR : IMAGE_PATH_GAME_OVER_TIME_LIMIT;
+        const alt = gameOverStatus === 'YOU WON!' ? 'Game Clear' : 'Game Over';
+        return (
+            <div className="relative w-full h-full">
+                <img
+                    src={backgroundImage}
+                    alt="Background"
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+                    <div className="p-8 rounded-lg text-center">
+                        <img src={src} alt={alt} className="max-w-sm mb-6 pixelated" />
+                        <p className="text-3xl text-yellow-400 mt-2">Time: {elapsedTime.toFixed(2)}s</p>
+                    </div>
                 </div>
             </div>
         );
     }
 
     // Main Game Screen
-    return(
-        <div className="relative overflow-hidden shadow-2xl border-4 border-blue-800/70" style={{width:GAME_WIDTH,height:GAME_HEIGHT}}>
-            <AnimatedBackground />
+    return (
+        <div className="relative overflow-hidden shadow-2xl border-4 border-blue-800/70" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
+            <img
+                src={backgroundImage}
+                alt="Background"
+                className="absolute inset-0 w-full h-full object-cover"
+            />
             <div className="absolute inset-0 z-10">
                 <Player playerX={playerX} selectedBunny={selectedBunny} />
-                {enemies.map(e=><EnemyComponent key={e.id} enemy={e} />)}
-                {missiles.map(m=><MissileComponent key={m.id} x={m.x} y={m.y} selectedBunny={selectedBunny} />)}
+                {enemies.map(e => <EnemyComponent key={e.id} enemy={e} />)}
+                {missiles.map(m => <MissileComponent key={m.id} x={m.x} y={m.y} selectedBunny={selectedBunny} />)}
                 <Timer elapsedTime={elapsedTime} />
             </div>
         </div>
