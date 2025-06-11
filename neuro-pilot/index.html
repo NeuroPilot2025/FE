@@ -33,17 +33,36 @@
           opacity: 1;
         }
         50% {
-          transform: scale(1.1) rotate(10deg);
+          transform: scale(1.1) rotate(5deg);
           opacity: 0.8;
-        }
+        } /* Adjusted rotation for subtlety */
         to {
-          transform: scale(0.3) rotate(-20deg);
+          transform: scale(0.3) rotate(-10deg);
           opacity: 0;
-        }
+        } /* Adjusted rotation for subtlety */
       }
       .animate-shrink-fade {
-        animation: shrinkFade 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)
+        animation: shrinkFade 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55)
           forwards;
+      }
+
+      @keyframes quickShake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-3px);
+        }
+        50% {
+          transform: translateX(3px);
+        }
+        75% {
+          transform: translateX(-2px);
+        }
+      }
+      .animate-quick-shake {
+        animation: quickShake 0.15s linear 1; /* Play animation once */
       }
 
       /* Removed .bunny-selection-item styles as they are no longer used */
@@ -57,7 +76,6 @@
         }
       }
     </script>
-    <link rel="stylesheet" href="/index.css" />
   </head>
   <body>
     <div id="root"></div>
