@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Enemy as EnemyTypeInterface, EnemyType } from '../types';
 import { 
   ENEMY_WIDTH, ENEMY_HEIGHT, 
-  RACCOON_IMG_DATA_NORMAL, RACCOON_IMG_DATA_ANGRY, // Using image data URLs
-  RACCOON_DEFEATED_SVG_DATA
+  RACCOON_IMG_DATA_NORMAL, RACCOON_IMG_DATA_ANGRY,
+  RACCOON_BASIC_DEFEATED_IMAGE_PATH, RACCOON_STRONG_DEFEATED_IMAGE_PATH
 } from '../constants';
 
 interface EnemyProps {
@@ -19,33 +20,37 @@ const Enemy: React.FC<EnemyProps> = ({ enemy }) => {
     position: 'absolute',
   };
 
-  let className = `pixelated transition-opacity duration-200`;
   if (enemy.isDying) {
-    className += ' animate-shrink-fade'; // Apply shrink and fade animation
-  } else if (enemy.isHit) {
-    className += ' opacity-60 animate-pulse'; // Simple pulse for hit, or could be a specific hit frame
-  }
-
-
-  if (enemy.isDying) {
+    const defeatedImagePath = enemy.type === EnemyType.STRONG 
+      ? RACCOON_STRONG_DEFEATED_IMAGE_PATH 
+      : RACCOON_BASIC_DEFEATED_IMAGE_PATH;
+    
+    // 패배한 라쿤 이미지를 표시합니다.
+    // 'animate-shrink-fade' 애니메이션은 opacity: 1에서 시작하므로 이미지가 보여야 합니다.
     return (
-      <div
+      <img
+        src={defeatedImagePath}
+        alt={`패배한 ${enemy.type === EnemyType.STRONG ? '강한' : '일반'} 라쿤`} // Alt 텍스트 개선
         style={commonStyles}
-        className={className}
-        dangerouslySetInnerHTML={{ __html: RACCOON_DEFEATED_SVG_DATA.replace('<svg', '<svg class="w-full h-full"') }}
-        aria-label="Defeated Enemy"
+        className="pixelated animate-shrink-fade" 
       />
     );
   }
 
+  // 살아있는 적의 로직
+  let aliveEnemyClasses = 'pixelated';
+  if (enemy.isHit) {
+    aliveEnemyClasses += ' opacity-60 animate-quick-shake'; // 피격 시 시각적 피드백
+  }
+  
   const imgSrc = enemy.type === EnemyType.STRONG ? RACCOON_IMG_DATA_ANGRY : RACCOON_IMG_DATA_NORMAL;
   
   return (
     <img
       src={imgSrc}
-      alt={`Enemy ${enemy.type}`}
+      alt={`${enemy.type === EnemyType.STRONG ? '강한' : '일반'} 라쿤 적`} // Alt 텍스트 개선
       style={commonStyles}
-      className={className}
+      className={aliveEnemyClasses} 
     />
   );
 };
