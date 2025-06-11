@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neuro Pilot: Space Bunny Adventure</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; font-family: 'Arial', sans-serif; background-color: #0c1445; }
+    #root { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    /* Custom font for game title if needed, or use Tailwind's font utilities */
+    .game-font { font-family: 'Comic Sans MS', 'Chalkduster', 'cursive'; } /* Example playful font */
+    .pixelated { image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; }
+
+    @keyframes shrinkFade {
+      from { transform: scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.1) rotate(10deg); opacity: 0.8;}
+      to { transform: scale(0.3) rotate(-20deg); opacity: 0; }
+    }
+    .animate-shrink-fade {
+      animation: shrinkFade 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    }
+
+    /* Removed .bunny-selection-item styles as they are no longer used */
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
