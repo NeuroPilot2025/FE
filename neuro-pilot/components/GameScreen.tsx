@@ -10,7 +10,6 @@ import EnemyComponent from "./Enemy";
 import MissileComponent from "./Missile";
 import AnimatedBackground from "./AnimatedBackground";
 import Timer from "./Timer";
-import Button from "./Button";
 import {
     GAME_WIDTH,
     GAME_HEIGHT,
@@ -53,7 +52,6 @@ const GameScreen: React.FC<GameScreenProps> = ({
     const [enemies, setEnemies] = useState<EnemyInterface[]>([]);
     const [elapsedTime, setElapsedTime] = useState<number>(0);
     const [canFire, setCanFire] = useState<boolean>(true);
-    const [isPaused, setIsPaused] = useState<boolean>(false);
     const [gameOverStatus, setGameOverStatus] = useState<string | null>(null);
 
     const enemiesDefeatedRef = useRef({ basic: 0, strong: 0 });
@@ -66,11 +64,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
     const spawnEnemy = useCallback(() => {
         setEnemies((prevEnemies) => {
-            // Only spawn if no alive enemies and game not over
             if (prevEnemies.some((e) => !e.isDying) || gameOverStatus)
                 return prevEnemies;
 
-            // Determine type for next enemy
             let newEnemyType: EnemyType;
             let newEnemyHealth: number;
             if (enemiesDefeatedRef.current.basic < TOTAL_BASIC_ENEMIES) {
@@ -82,6 +78,10 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 newEnemyType = EnemyType.STRONG;
                 newEnemyHealth = ENEMY_STRONG_HEALTH;
             } else {
+                if (!gameOverStatus) {
+                    setGameOverStatus("YOU WON!");
+                    onGameOver(elapsedTime, "YOU WON!");
+                }
                 return prevEnemies;
             }
 
@@ -97,9 +97,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 isHit: false,
                 isDying: false,
             };
-            return [...prevEnemies, newEnemy];
+            return [newEnemy];
         });
-    }, [gameOverStatus]);
+    }, [elapsedTime, gameOverStatus, onGameOver]);
 
     useEffect(() => {
         if (!gameOverStatus && enemies.filter((e) => !e.isDying).length === 0) {
@@ -109,17 +109,16 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (isPaused || gameOverStatus) return;
+            if (gameOverStatus) return;
             if (e.key === "ArrowLeft") setPlayerX(PLAYER_LEFT_X);
             else if (e.key === "ArrowRight") setPlayerX(PLAYER_RIGHT_X);
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isPaused, gameOverStatus]);
+    }, [gameOverStatus]);
 
     useEffect(() => {
         if (
-            isPaused ||
             gameOverStatus ||
             !canFire ||
             enemies.filter((e) => !e.isDying).length === 0
@@ -136,24 +135,15 @@ const GameScreen: React.FC<GameScreenProps> = ({
                     y: PLAYER_START_Y,
                 },
             ]);
-<<<<<<< Updated upstream
-            lastFireTimeRef.current = now;
-            setCanFire(false);
-            setTimeout(() => setCanFire(true), MISSILE_COOLDOWN_MS);
-        }
-    }, [playerX, canFire, isPaused, gameOverStatus, enemies]);
-
-=======
 
             lastFireTimeRef.current = now;
             setCanFire(false);
             setTimeout(() => setCanFire(true), MISSILE_COOLDOWN_MS);
         }
-    }, [playerX, canFire, isPaused, gameOverStatus, enemies]);
+    }, [playerX, canFire, gameOverStatus, enemies]);
 
->>>>>>> Stashed changes
     useEffect(() => {
-        if (isPaused || gameOverStatus) {
+        if (gameOverStatus) {
             if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
             return;
         }
@@ -164,13 +154,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
                     cancelAnimationFrame(gameLoopRef.current);
                 return;
             }
-<<<<<<< Updated upstream
             const deltaTime = (timestamp - lastTickTimeRef.current) / 1000;
-=======
-            const rawDelta = timestamp - lastTickTimeRef.current;
-            const deltaTime = Math.max(rawDelta / 1000, 0); // 음수 방지
-
->>>>>>> Stashed changes
             lastTickTimeRef.current = timestamp;
 
             setElapsedTime((prev) => {
@@ -188,58 +172,45 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
             setMissiles((prev) =>
                 prev
-                    .map((m) => ({
-                        ...m,
-                        y: m.y - MISSILE_SPEED * (deltaTime * 60),
-                    }))
+                    .map((m) => ({ ...m, y: m.y - MISSILE_SPEED * (deltaTime * 60) }))
                     .filter((m) => m.y > -MISSILE_HEIGHT)
             );
 
             setEnemies((prev) =>
                 prev.map((enemy) => {
-                    if (enemy.isDying) return enemy;
+                    if (enemy.isDying || enemy.health <= 0) return enemy;
 
                     let newHealth = enemy.health;
-                    let hit = false;
+                    let wasHit = false;
 
-                    const remaining = missiles.filter((missile) => {
-                        const collided =
+                    const remainingMissiles = missiles.filter((missile) => {
+                        if (
                             missile.x < enemy.x + ENEMY_WIDTH &&
                             missile.x + MISSILE_WIDTH > enemy.x &&
                             missile.y < enemy.y + ENEMY_HEIGHT &&
-                            missile.y + MISSILE_HEIGHT > enemy.y;
-                        if (collided) {
+                            missile.y + MISSILE_HEIGHT > enemy.y
+                        ) {
+                            wasHit = true;
                             newHealth--;
-                            hit = true;
                             return false;
                         }
                         return true;
                     });
 
-                    if (hit) {
-                        setMissiles(remaining);
-                        const updated = {
-                            ...enemy,
-                            health: newHealth,
-                            isHit: true,
-                        };
+                    if (wasHit) {
+                        setMissiles(remainingMissiles);
+                        const updatedEnemy = { ...enemy, health: newHealth, isHit: true };
 
                         if (newHealth <= 0) {
-                            updated.isDying = true;
-                            if (updated.type === EnemyType.BASIC)
+                            updatedEnemy.isDying = true;
+                            if (updatedEnemy.type === EnemyType.BASIC)
                                 enemiesDefeatedRef.current.basic++;
                             else enemiesDefeatedRef.current.strong++;
 
-                            const isLastStrong =
-                                updated.type === EnemyType.STRONG &&
-                                enemiesDefeatedRef.current.strong >=
-                                    TOTAL_STRONG_ENEMIES;
-
                             setTimeout(() => {
-                                setEnemies((cur) =>
-                                    cur.filter((e) => e.id !== updated.id)
-                                );
-                                if (isLastStrong) {
+                                setEnemies((cur) => cur.filter((e) => e.id !== updatedEnemy.id));
+                                if (updatedEnemy.type === EnemyType.STRONG &&
+                                    enemiesDefeatedRef.current.strong >= TOTAL_STRONG_ENEMIES) {
                                     setGameOverStatus("YOU WON!");
                                     onGameOver(elapsedTime, "YOU WON!");
                                 } else spawnEnemy();
@@ -250,14 +221,12 @@ const GameScreen: React.FC<GameScreenProps> = ({
                             enemyHitTimeoutRef.current = setTimeout(() => {
                                 setEnemies((cur) =>
                                     cur.map((e) =>
-                                        e.id === enemy.id
-                                            ? { ...e, isHit: false }
-                                            : e
+                                        e.id === enemy.id ? { ...e, isHit: false } : e
                                     )
                                 );
                             }, 150);
                         }
-                        return updated;
+                        return updatedEnemy;
                     }
                     return enemy;
                 })
@@ -274,7 +243,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
             if (enemyHitTimeoutRef.current)
                 clearTimeout(enemyHitTimeoutRef.current);
         };
-    }, [isPaused, missiles, onGameOver, gameOverStatus, spawnEnemy]);
+    }, [missiles, onGameOver, gameOverStatus, spawnEnemy]);
 
     if (gameOverStatus) {
         let outcomeImageSrc = "";
@@ -324,14 +293,6 @@ const GameScreen: React.FC<GameScreenProps> = ({
                     />
                 ))}
                 <Timer elapsedTime={elapsedTime} />
-                <Button
-                    onClick={() => setIsPaused(!isPaused)}
-                    variant="secondary"
-                    className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-sm px-3 py-1 opacity-80 hover:opacity-100"
-                    aria-label={isPaused ? "Resume Game" : "Pause Game"}
-                >
-                    {isPaused ? "RESUME" : "PAUSE"}
-                </Button>
             </div>
         </div>
     );
