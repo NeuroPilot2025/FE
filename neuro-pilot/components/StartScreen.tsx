@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AnimatedBackground from "./StartBackground";
+import StartBackground from "./StartBackground";
 import { SelectedBunny } from "../types";
 // Note: BUNNY_SVG_DATA constants are not used here anymore for display,
 // but they are kept in constants.ts for Player.tsx
@@ -70,7 +70,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center text-white relative overflow-hidden">
-      <AnimatedBackground />
+      <StartBackground />
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-md p-4">
         <img
